@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">LEDControlSerial</string>
+    <string name="button_led_on">LED ON</string>
+    <string name="buton_led_off">LED OFF</string>
+    <string name="label_main">LED Controller</string>
 </resources>
