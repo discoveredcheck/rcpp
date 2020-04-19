@@ -3,8 +3,15 @@ int enA = 3;
 int in1 = 4;
 int in2 = 5;
 
+bool IS_MOTOR_A_ON = false;
+const char *serial_msg = NULL;
+
 void setup() {
   // Set all the motor control pins to outputs
+  Serial.begin(9600);
+  serial_msg = { "Starting rcpp\n"};
+  Serial.print(serial_msg);
+
   pinMode(enA, OUTPUT);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
@@ -13,57 +20,41 @@ void setup() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
 
-  
 }
 
 void loop() {
-  directionControl();
-  delay(1000);
-  speedControl();
-  delay(1000);
+   char input = read_char(true);
+   if(input == '1')
+   {
+      IS_MOTOR_A_ON = true;
+   }if(input == '2'){
+      IS_MOTOR_A_ON = false;
+   }
+
+  update_motor_a(IS_MOTOR_A_ON);
+
 }
 
-
-// This function lets you control spinning direction of motors
-void directionControl() {
-  // Set motors to maximum speed
-  // For PWM maximum possible values are 0 to 255
-  analogWrite(enA, 255);
-
-  // Turn on motor A
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  delay(2000);
-  
-  // Now change motor directions
-  //digitalWrite(in1, LOW);
-  //digitalWrite(in2, HIGH);
-  //delay(2000);
-  
-  // Turn off motors
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
+char read_char(bool do_echo) {
+  if (Serial.available()) {
+    char incoming = (char)Serial.read();
+    if (do_echo)
+    {
+      Serial.print(incoming);
+    }
+    return incoming;
+  }
+  return NULL;
 }
 
-
-// This function lets you control speed of the motors
-void speedControl() {
-  // Turn on motors
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  
-  // Accelerate from zero to maximum speed
-  for (int i = 0; i < 256; i++) {
-    analogWrite(enA, i);
-    delay(20);
+void update_motor_a(bool is_active){
+  if(is_active){
+    analogWrite(enA, 100);
+    // Turn on motor A
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+  }else{
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
   }
-  
-  // Decelerate from maximum speed to zero
-  for (int i = 255; i >= 0; --i) {
-    analogWrite(enA, i);
-    delay(20);
-  }
-  // Now turn off motors
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
 }
