@@ -3,7 +3,7 @@
 ## Setup
 ### Design 1
 
-*[Schematics](https://github.com/discoveredcheck/rcpp/blob/master/docs/images/arduino_h_bridge_dc_motors.svg)
+* [Schematics](https://github.com/discoveredcheck/rcpp/blob/master/docs/images/arduino_h_bridge_dc_motors.svg)
 
 ## Resources
 
