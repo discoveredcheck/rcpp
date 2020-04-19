@@ -17,7 +17,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <uses-library android:name="com.google.android.things" android:required="true"/>
+        <uses-library android:name="com.google.android.things" android:required="false"/>
     </application>
 
 </manifest>

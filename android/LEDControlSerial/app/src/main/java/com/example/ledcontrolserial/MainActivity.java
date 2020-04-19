@@ -9,7 +9,6 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.google.android.things.pio.PeripheralManager;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -18,16 +17,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PeripheralManager pioManager = PeripheralManager.getInstance();
-
-        /*try {
-            PeripheralManager pioManager = PeripheralManager.getInstance();
-            Log.i(TAG, "Available UART: " + pioManager.getUartDeviceList());
-        }catch (Exception e){
-            Log.i(TAG, e.toString());
-        }*/
-
-
         setContentView(R.layout.activity_main);
         Switch sw = (Switch) findViewById(R.id.led_switch);
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
