@@ -1,3 +1,5 @@
+#include <rcpp.h>
+
 // Motor A connections
 int enA = 3;
 int in1 = 4;
@@ -33,18 +35,6 @@ void loop() {
 
   update_motor_a(IS_MOTOR_A_ON);
 
-}
-
-char read_char(bool do_echo) {
-  if (Serial.available()) {
-    char incoming = (char)Serial.read();
-    if (do_echo)
-    {
-      Serial.print(incoming);
-    }
-    return incoming;
-  }
-  return NULL;
 }
 
 void update_motor_a(bool is_active){
