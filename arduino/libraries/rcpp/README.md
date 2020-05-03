@@ -9,7 +9,7 @@ There are two main sets of supported commands - the `SET` and the `GET` commands
 - `resource` = {`m`} denoting the motor resource type.
 - `resource_num` = {`0`, `1`} denoting the two motors.
 - `property` = {`s`, `d`} denoting speed and direction respectively.
-- `value` = [`0`, `9`] denoting values for motor speed and others as required.
+- `value` = [`0`, `9`] denoting values for motor speed in percentages (0-100) and direction (`0` for stop and `1`/`2` for CW/CCW).
 
 You may add the `|` character denoting end of command for faster interpretation on the arduino. Otherwise the serial adapter waits a specified amount of time before terminating a string of characters.
 
