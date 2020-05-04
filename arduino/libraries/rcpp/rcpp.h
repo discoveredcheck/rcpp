@@ -38,17 +38,24 @@ class SerialHandler {
             digitalWrite(EN_0, LOW);
             digitalWrite(IN1_0, LOW);
             digitalWrite(IN2_0, LOW);
+
+            pinMode(LED_BUILTIN, OUTPUT);
+            digitalWrite(LED_BUILTIN, LOW);
         }
-        String loop() {
+        String loop(bool echo) {
             String cmd = read_string(false, EOC_CHAR);
             if (cmd != "") {
                 if (validate(cmd)) {
-                    Serial.print("CMD: ");
-                    Serial.println(cmd);
+                    if (echo) {
+                        Serial.print("CMD: ");
+                        Serial.println(cmd);
+                    }
                     return handle(cmd);
                 } else {
-                    Serial.print("Invalid: ");
-                    Serial.println(cmd);
+                    if (echo) {
+                        Serial.print("Invalid: ");
+                        Serial.println(cmd);
+                    }
                 }
             }
             return "";
@@ -59,7 +66,7 @@ class SerialHandler {
         char GET_CHAR = 'g';
         char SET_CHAR = 's';
         char EOC_CHAR = '|';
-        String RESOURCE_CHARS = "m";
+        String RESOURCE_CHARS = "ml";
         String RESOURCE_NUM_CHARS = "0123456789";
         String PROPERTY_CHARS = "ds";
         String VALUE_CHARS = "0123456789";
@@ -122,6 +129,9 @@ class SerialHandler {
                                 break;
                         }
                     }
+                } else if (cmd.charAt(1) == 'l') {
+                    PinStatus val = cmd.charAt(4) == '0' ? LOW : HIGH;
+                    digitalWrite(LED_BUILTIN, val);
                 }
             }
             return "";
