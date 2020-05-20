@@ -11,5 +11,5 @@ void setup() {
 }
 
 void loop() {
-	handler.loop();
+	handler.loop(false);
 }
