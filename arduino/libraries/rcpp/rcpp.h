@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Servo.h>
 
 char read_char(bool do_echo) {
 	if (Serial.available()) {
@@ -25,22 +26,15 @@ String read_string(bool do_echo, char end_char) {
     return "";
 }
 
-class SerialHandler {
+class SerialHandlerBase {
+    private:
+        int baud;
     public:
-        void setup(int baud_rate, int motor_0[3]) {
-            Serial.begin(baud_rate);
-            EN_0 =  motor_0[0];
-            IN1_0 =  motor_0[1];
-            IN2_0 =  motor_0[2];
-            for(int i=0; i<3; i++) {
-                pinMode(motor_0[i], OUTPUT);
-            }
-            digitalWrite(EN_0, LOW);
-            digitalWrite(IN1_0, LOW);
-            digitalWrite(IN2_0, LOW);
-
+        SerialHandlerBase(int baud_rate) : baud(baud_rate) {}
+        virtual String handle(String cmd) = 0;
+        virtual void setup() {
             pinMode(LED_BUILTIN, OUTPUT);
-            digitalWrite(LED_BUILTIN, LOW);
+            Serial.begin(baud);
         }
         String loop(bool echo) {
             String cmd = read_string(false, EOC_CHAR);
@@ -50,7 +44,11 @@ class SerialHandler {
                         Serial.print("CMD: ");
                         Serial.println(cmd);
                     }
-                    return handle(cmd);
+                    String ret = this->handle(cmd);
+                    if (ret != "") {
+                        Serial.println(ret);
+                    }
+                    return ret;
                 } else {
                     if (echo) {
                         Serial.print("Invalid: ");
@@ -60,15 +58,13 @@ class SerialHandler {
             }
             return "";
         }
-    private:
-        int EN_0, IN1_0, IN2_0;
         char IDLE_CHAR = 'i';
         char GET_CHAR = 'g';
         char SET_CHAR = 's';
         char EOC_CHAR = '|';
         String RESOURCE_CHARS = "ml";
         String RESOURCE_NUM_CHARS = "0123456789";
-        String PROPERTY_CHARS = "ds";
+        String PROPERTY_CHARS = "dsp";
         String VALUE_CHARS = "0123456789";
 
         bool validate(String cmd) {
@@ -102,7 +98,39 @@ class SerialHandler {
             }
             return true;
         }
-        String handle(String cmd) {
+        
+        bool string_contains(String parent, char c) {
+            for(int i=0; i<parent.length(); i++) {
+                if (c == parent.charAt(i)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+};
+
+class SerialHandlerDC : public SerialHandlerBase {
+    private:
+        int EN_0, IN1_0, IN2_0;
+    public:
+    SerialHandlerDC(int baud_rate, int motor_0[3]) : SerialHandlerBase(baud_rate) {
+        EN_0 =  motor_0[0];
+        IN1_0 =  motor_0[1];
+        IN2_0 =  motor_0[2];
+    }
+    void setup() {
+        SerialHandlerBase::setup();
+        pinMode(EN_0, OUTPUT);
+        pinMode(IN1_0, OUTPUT);
+        pinMode(IN2_0, OUTPUT);
+        digitalWrite(EN_0, LOW);
+        digitalWrite(IN1_0, LOW);
+        digitalWrite(IN2_0, LOW);
+
+        pinMode(LED_BUILTIN, OUTPUT);
+        digitalWrite(LED_BUILTIN, LOW);
+        }
+    String handle(String cmd) {
             if (cmd.charAt(0) == 's') {
                 if (cmd.charAt(1) == 'm') {
                     if (cmd.charAt(3) == 's') {
@@ -136,12 +164,43 @@ class SerialHandler {
             }
             return "";
         }
-        bool string_contains(String parent, char c) {
-            for(int i=0; i<parent.length(); i++) {
-                if (c == parent.charAt(i)) {
-                    return true;
+};
+class SerialHandlerServo : public SerialHandlerBase {
+    private:
+        Servo servo;
+        int last_cmd_pos_0;
+        int baud;
+        int mpin_0;
+    public:
+        SerialHandlerServo(int baud_rate, int motor_pin_0): baud(baud_rate), mpin_0(motor_pin_0), SerialHandlerBase(baud_rate) {}    
+        void setup() {
+            SerialHandlerBase::setup();
+            servo.attach(mpin_0);
+            last_cmd_pos_0 = servo.read();
+            servo.write(last_cmd_pos_0);
+            Serial.begin(baud);
+        }
+        String handle(String cmd) {
+            if (cmd.charAt(0) == 's') {
+                if (cmd.charAt(1) == 'm') {
+                    if (cmd.charAt(3) == 'p') {
+                        int val = cmd.substring(4).toInt();
+                        if (0 <= val && val <= 180) {
+                            last_cmd_pos_0 = val;
+                            servo.write(val);
+                        }
+                    }
+                } else if (cmd.charAt(1) == 'l') {
+                    PinStatus val = cmd.charAt(4) == '0' ? LOW : HIGH;
+                    digitalWrite(LED_BUILTIN, val);
+                }
+            } else if(cmd.charAt(0) == 'g') {
+                if (cmd.charAt(1) == 'm') {
+                    if (cmd.charAt(3) == 'p') {
+                        return String(last_cmd_pos_0);
+                    }
                 }
             }
-            return false;
+        return "";
         }
 };
