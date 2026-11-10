@@ -1,6 +1,6 @@
 # rcpp
 
-`rcpp` stands for remote cell phone platform. It is a small robot platform. An Android phone controls an Arduino over a USB serial connection, and the Arduino drives DC motors.
+`rcpp` stands for remote cell phone platform. It is a small robot platform. An Android phone controls an Arduino over a USB serial connection, and the Arduino drives DC motors. This is a personal project. The motor moves an Android phone, and the phone is meant to work as a baby monitor in my home.
 
 ## Parts
 
